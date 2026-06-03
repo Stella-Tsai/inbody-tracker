@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>InBody × 猛健樂 健康追蹤</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf8f5;--ink:#1a1814;--sub:#6b6560;--a:#c8845a;--a2:#5c8c6e;--rose:#b5606e;
+  --line:#e8e2db;--card:#fff;--card2:#f5f1ec;
+  --shadow:0 1px 3px rgba(26,24,20,.08),0 4px 16px rgba(26,24,20,.04);
+}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans','Noto Sans TC',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(200,132,90,.08),transparent 50%),
+  radial-gradient(ellipse at 80% 100%,rgba(92,140,110,.06),transparent 50%)}
+.serif{font-family:'Playfair Display',serif}
+.mono{font-family:'DM Mono',monospace}
+
+/* LAYOUT */
+.wrap{max-width:860px;margin:0 auto;padding:32px 20px 80px}
+header{margin-bottom:36px}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:.5px solid var(--line);padding:3px 11px;border-radius:999px;font-size:11px;color:var(--sub);letter-spacing:.08em}
+.pill.accent{border-color:var(--a);color:var(--a)}
+h1{font-size:38px;font-weight:400;line-height:1.1;margin-bottom:6px}
+h1 em{font-style:italic;color:var(--a)}
+.tagline{font-size:14px;color:var(--sub)}
+
+/* NAV */
+.nav-wrap{border-bottom:1px solid var(--line);margin-bottom:28px;overflow-x:auto;white-space:nowrap}
+nav button{background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);padding:11px 16px;cursor:pointer;font-size:13px;font-family:inherit;margin-bottom:-1px;transition:.15s;white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--a)}
+nav button:hover{color:var(--ink)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card.accent-border{border-color:rgba(200,132,90,.4)}
+.lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--sub);margin-bottom:6px}
+.sep{height:1px;background:var(--line);margin:14px 0}
+
+/* METRIC BOXES */
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:14px}
+.metric{background:var(--card2);border-radius:8px;padding:11px 13px}
+.metric .lbl{margin-bottom:4px}
+.metric .val{font-size:22px;font-weight:500;line-height:1}
+.metric .unit{font-size:11px;color:var(--sub);margin-left:2px}
+.metric .delta{font-size:11px;margin-top:4px}
+.delta-good{color:#3d7a56}
+.delta-warn{color:#b5606e}
+.delta-neu{color:var(--sub)}
+
+/* BUTTONS */
+.btn{background:var(--a);color:#fff;border:none;padding:11px 24px;border-radius:8px;font-weight:500;cursor:pointer;font-size:13px;font-family:inherit;transition:.15s}
+.btn:hover{background:#b5724a;transform:translateY(-1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--sub);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;transition:.15s}
+.btn-ghost:hover{background:var(--card2);color:var(--ink)}
+.btn-danger{background:transparent;border:1px solid #e8d0d3;color:#b5606e;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit}
+
+/* TAGS */
+.tag-must{background:#fbeaee;color:#7a2438;padding:2px 8px;border-radius:4px;font-size:11px}
+.tag-rec{background:#fef3e2;color:#7a4a08;padding:2px 8px;border-radius:4px;font-size:11px}
+.tag-opt{background:#eaf3ec;color:#2a5c3a;padding:2px 8px;border-radius:4px;font-size:11px}
+
+/* TABLE */
+table.t{width:100%;border-collapse:collapse;font-size:12px}
+table.t th{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--sub);padding:7px 8px;text-align:left;border-bottom:1px solid var(--line);font-weight:400}
+table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink)}
+table.t tr:last-child td{border-bottom:none}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--sub)}
+input[type=date],input[type=number],input[type=text],select{
+  background:var(--bg);border:1px solid var(--line);color:var(--ink);
+  padding:9px 12px;border-radius:8px;font-size:13px;font-family:inherit;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--a)}
+.form-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.form-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* HISTORY ITEM */
+.rec{margin-bottom:14px}
+details summary{font-size:12px;color:var(--sub);cursor:pointer;list-style:none;padding:8px 0;border-top:1px solid var(--line);user-select:none}
+details summary::-webkit-details-marker{display:none}
+details[open] summary::before{content:'▾ '}
+details:not([open]) summary::before{content:'▸ '}
+
+/* AL */
+.al{border-left:2px solid var(--a);padding-left:14px;margin-bottom:12px}
+
+/* SPINNER */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--a);border-top-color:transparent;border-radius:50%;animation:sp .9s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* BANNER */
+.banner{background:linear-gradient(135deg,#fef8f3,#f8f0e8);border:1px solid rgba(200,132,90,.25);border-radius:12px;padding:16px 20px;margin-bottom:14px}
+
+/* CHART GRID */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* MOUNJARO INFO */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* RESPONSIVE */
+@media(max-width:580px){
+  h1{font-size:28px}
+  .form-row,.form-3,.form-4,.chart-grid,.info-grid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-top">
+      <div class="pills">
+        <span class="pill mono">INBODY TRACKER</span>
+        <span class="pill accent mono">MOUNJARO</span>
+        <span class="pill">23歲 · 女 · 156cm</span>
+      </div>
+    </div>
+    <h1 class="serif">InBody <em>×</em> 猛健樂<br>健康追蹤</h1>
+    <p class="tagline">記錄每次測量，追蹤你的減脂進度</p>
+  </header>
+
+  <div class="nav-wrap">
+    <nav>
+      <button class="on" onclick="tab('ov',this)">總覽</button>
+      <button onclick="tab('add',this)">新增紀錄</button>
+      <button onclick="tab('tr',this)">趨勢圖表</button>
+      <button onclick="tab('hi',this)">歷史紀錄</button>
+      <button onclick="tab('su',this)">保健品方案</button>
+      <button onclick="tab('gu',this)">用藥指南</button>
+    </nav>
+  </div>
+
+  <!-- 總覽 -->
+  <div id="tab-ov">
+    <div id="ov-content"></div>
+  </div>
+
+  <!-- 新增紀錄 -->
+  <div id="tab-add" style="display:none">
+    <div class="card">
+      <div class="lbl" style="margin-bottom:14px">填入 InBody 數值</div>
+      <div class="form-row">
+        <div class="form-group"><label>測量日期</label><input type="date" id="f-date"></div>
+        <div class="form-group"><label>備註（可選）</label><input type="text" id="f-note" placeholder="例：升劑至 5mg、第3週"></div>
+      </div>
+      <div class="sep"></div>
+      <div class="lbl" style="margin-bottom:10px">基本數值</div>
+      <div class="form-4">
+        <div class="form-group"><label>體重 (kg)</label><input type="number" id="f-weight" step="0.01" placeholder="45.31"></div>
+        <div class="form-group"><label>體脂率 (%)</label><input type="number" id="f-fatpct" step="0.1" placeholder="25.7"></div>
+        <div class="form-group"><label>脂肪量 (kg)</label><input type="number" id="f-fat" step="0.1" placeholder="11.6"></div>
+        <div class="form-group"><label>骨骼肌 (kg)</label><input type="number" id="f-muscle" step="0.1" placeholder="18.0"></div>
+      </div>
+      <div class="form-4">
+        <div class="form-group"><label>肌肉量 (kg)</label><input type="number" id="f-muscletotal" step="0.1" placeholder="31.5"></div>
+        <div class="form-group"><label>內臟脂肪等級</label><input type="number" id="f-visceral" step="1" placeholder="4"></div>
+        <div class="form-group"><label>BMI</label><input type="number" id="f-bmi" step="0.1" placeholder="18.6"></div>
+        <div class="form-group"><label>BMR (kcal)</label><input type="number" id="f-bmr" step="1" placeholder="1098"></div>
+      </div>
+      <div class="form-4">
+        <div class="form-group"><label>含水量 (L)</label><input type="number" id="f-water" step="0.1" placeholder="24.7"></div>
+        <div class="form-group"><label>蛋白質 (kg)</label><input type="number" id="f-protein" step="0.1" placeholder="6.8"></div>
+        <div class="form-group"><label>腰臀比</label><input type="number" id="f-whr" step="0.01" placeholder="0.68"></div>
+        <div class="form-group"><label>身體評分</label><input type="number" id="f-score" step="1" placeholder="74"></div>
+      </div>
+      <div class="sep"></div>
+      <div class="lbl" style="margin-bottom:10px">猛健樂施打紀錄</div>
+      <div class="form-row">
+        <div class="form-group"><label>本週劑量</label>
+          <select id="f-dose">
+            <option value="">未施打</option>
+            <option value="2.5mg">2.5mg</option>
+            <option value="5mg">5mg</option>
+            <option value="7.5mg">7.5mg</option>
+            <option value="10mg">10mg</option>
+            <option value="12.5mg">12.5mg</option>
+            <option value="15mg">15mg</option>
+          </select>
+        </div>
+        <div class="form-group"><label>副作用或感受（可選）</label><input type="text" id="f-side" placeholder="例：輕微噁心、食慾正常"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn" onclick="saveRecord()">儲存紀錄</button>
+        <button class="btn-ghost" onclick="clearForm()">清除</button>
+      </div>
+      <div id="save-msg" style="display:none;margin-top:10px;font-size:13px;color:#3d7a56">✓ 已儲存！</div>
+    </div>
+  </div>
+
+  <!-- 趨勢 -->
+  <div id="tab-tr" style="display:none">
+    <div id="tr-content"></div>
+  </div>
+
+  <!-- 歷史 -->
+  <div id="tab-hi" style="display:none">
+    <div id="hi-content"></div>
+  </div>
+
+  <!-- 保健品 -->
+  <div id="tab-su" style="display:none">
+    <div class="card">
+      <div class="lbl" style="margin-bottom:4px">完整保健品方案</div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:14px">針對猛健樂常見問題：噁心、便秘、肌肉流失、營養吸收下降</div>
+      <div style="overflow-x:auto">
+        <table class="t">
+          <thead><tr><th>名稱</th><th>劑量</th><th>時機</th><th>目的</th><th>優先</th></tr></thead>
+          <tbody>
+            ${[['乳清蛋白','25g','運動後或餐間','補足蛋白質，防肌肉流失（骨骼肌偏低最關鍵）','必備'],
+               ['維生素 D3','2000 IU','早餐後','肌肉功能、免疫、骨骼健康','必備'],
+               ['Omega-3 魚油','2g（EPA+DHA）','隨餐服用','抗發炎、護心血管、改善血脂','必備'],
+               ['鎂（甘胺酸鎂）','200mg','睡前','改善睡眠、防便秘、肌肉放鬆','必備'],
+               ['維生素 B 群','1顆複合B','早餐後','能量代謝、補充熱量不足時的流失','建議'],
+               ['膳食纖維（洋車前子）','5g加大量水','每餐前','猛健樂常見便秘、增加飽足感','建議'],
+               ['電解質粉','1包/天','日間補充','防頭痛疲勞，補充鈉鉀鎂','建議'],
+               ['膠原蛋白肽','10g','睡前','輔助皮膚緊緻（體重快速下降時）','選配'],
+            ].map(([n,d,t,p,pr])=>`<tr>
+              <td><strong>${n}</strong></td>
+              <td class="mono" style="font-size:11px">${d}</td>
+              <td style="font-size:11px">${t}</td>
+              <td style="font-size:11px;color:var(--sub)">${p}</td>
+              <td>${pr==='必備'?'<span class="tag-must">必備</span>':pr==='建議'?'<span class="tag-rec">建議</span>':'<span class="tag-opt">選配</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:12px">🏋️ 運動處方</div>
+      <div class="info-grid">
+        <div class="al"><div style="font-weight:500;margin-bottom:4px;font-size:13px">阻力訓練 <span class="tag-must" style="margin-left:4px">最重要</span></div><div style="font-size:12px;color:var(--sub)">每週 2–3 次，深蹲、硬舉、臥推等複合動作，每次 40–50 分鐘。守住骨骼肌，避免繼續下降。</div></div>
+        <div class="al"><div style="font-weight:500;margin-bottom:4px;font-size:13px">有氧運動</div><div style="font-size:12px;color:var(--sub)">每週 2–3 次快走或騎車 30 分鐘，強度中低即可。猛健樂期間體力可能略差，不需勉強。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 用藥指南 -->
+  <div id="tab-gu" style="display:none">
+    <div class="card accent-border">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <span class="pill accent mono">MOUNJARO</span><span class="lbl">用藥注意事項</span>
+      </div>
+      <div class="info-grid">
+        ${[['肌肉流失防護','每日蛋白質需達體重 ×1.5–1.8g，配合阻力訓練才能保住肌肉量。'],
+           ['噁心管理','油膩甜膩食物會加重噁心，少量多餐，薑茶或蘇打餅乾可緩解。'],
+           ['便秘預防','每日膳食纖維 25g+，水分 2000–2500ml，必要時用乳果糖。'],
+           ['電解質補充','食慾下降易缺鈉鉀鎂，出現頭痛疲勞時需補充。'],
+           ['劑量調整','每 4 週可依耐受性調升一個劑量，身體適應比速度重要。'],
+           ['注射時機','每週固定同一天，大腿、腹部、上臂輪換，空腹飯後均可。'],
+        ].map(([t,d])=>`<div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">${t}</div><div style="font-size:12px;color:var(--sub)">${d}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:12px">副作用速查</div>
+      <div style="overflow-x:auto">
+        <table class="t">
+          <thead><tr><th>副作用</th><th>原因</th><th>處理方式</th></tr></thead>
+          <tbody>
+            ${[['噁心','胃排空延緩','少量多餐，避免油膩，薑茶有助緩解'],
+               ['便秘','腸道蠕動減慢','增加纖維、水分，必要時用乳果糖'],
+               ['嘔吐','胃排空過慢','進食速度放慢，每口充分咀嚼'],
+               ['疲勞','熱量攝取不足','確認每日≥1000kcal，補充電解質'],
+               ['頭痛','脫水 / 低血糖','增加飲水，確保規律進食'],
+               ['肌肉流失','熱量赤字+蛋白質不足','優先保蛋白質，每週阻力訓練 2–3 次'],
+            ].map(([s,r,f])=>`<tr><td><strong>${s}</strong></td><td style="font-size:11px;color:var(--sub)">${r}</td><td style="font-size:11px">${f}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--sub);text-align:center;padding:14px;line-height:1.8">
+      本工具為衛教與飲食營養參考，不取代醫師、藥師、營養師之專業診斷。<br>
+      猛健樂(Tirzepatide)為處方藥，劑量調整與副作用請務必諮詢醫師。
+    </div>
+  </div>
+
+</div><!-- end wrap -->
+
+<script>
+const SK='inbody-v4';
+
+// ── 預載你的兩筆真實數據 ──
+const DEFAULT_RECORDS=[
+  {id:1741744287000,date:'2026-03-12',note:'猛健樂起始 2.5mg',dose:'2.5mg',side:'',
+   weight:47.03,fatPct:27.6,fat:13.0,muscle:18.2,muscleTotal:31.7,visceral:5,bmi:19.3,bmr:1105,water:24.9,protein:6.8,whr:0.69,score:73},
+  {id:1743058431000,date:'2026-03-26',note:'猛健樂第2週 2.5mg',dose:'2.5mg',side:'',
+   weight:45.31,fatPct:25.7,fat:11.6,muscle:18.0,muscleTotal:31.5,visceral:4,bmi:18.6,bmr:1098,water:24.7,protein:6.8,whr:0.68,score:74},
+];
+
+function lr(){
+  try{
+    const r=JSON.parse(localStorage.getItem(SK)||'null');
+    if(r)return r;
+    // 首次載入，存入預設資料
+    localStorage.setItem(SK,JSON.stringify(DEFAULT_RECORDS));
+    return DEFAULT_RECORDS;
+  }catch{return DEFAULT_RECORDS;}
+}
+function sr(r){localStorage.setItem(SK,JSON.stringify(r))}
+
+const G=id=>document.getElementById(id);
+G('f-date').value=new Date().toISOString().slice(0,10);
+
+// ── 儲存 ──
+function saveRecord(){
+  const rec={
+    id:Date.now(),
+    date:G('f-date').value||new Date().toISOString().slice(0,10),
+    note:G('f-note').value||'',
+    dose:G('f-dose').value||'',
+    side:G('f-side').value||'',
+    weight:+G('f-weight').value||null,
+    fatPct:+G('f-fatpct').value||null,
+    fat:+G('f-fat').value||null,
+    muscle:+G('f-muscle').value||null,
+    muscleTotal:+G('f-muscletotal').value||null,
+    visceral:+G('f-visceral').value||null,
+    bmi:+G('f-bmi').value||null,
+    bmr:+G('f-bmr').value||null,
+    water:+G('f-water').value||null,
+    protein:+G('f-protein').value||null,
+    whr:+G('f-whr').value||null,
+    score:+G('f-score').value||null,
+  };
+  if(!rec.weight&&!rec.fatPct){alert('請至少填入體重或體脂率');return;}
+  const recs=lr();recs.push(rec);recs.sort((a,b)=>a.date.localeCompare(b.date));sr(recs);
+  G('save-msg').style.display='block';setTimeout(()=>G('save-msg').style.display='none',2500);
+  clearForm();
+}
+function clearForm(){
+  ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id=>{G(id).value='';});
+  G('f-dose').value='';G('f-date').value=new Date().toISOString().slice(0,10);
+}
+
+// ── Tab ──
+function tab(name,btn){
+  ['ov','add','tr','hi','su','gu'].forEach(n=>{G('tab-'+n).style.display=n===name?'block':'none';});
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  if(name==='ov')renderOv();
+  if(name==='tr')renderTr();
+  if(name==='hi')renderHi();
+}
+
+// ── 總覽 ──
+function renderOv(){
+  const recs=lr();
+  if(!recs.length){G('ov-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄，點「新增紀錄」開始</div>`;return;}
+  const last=recs[recs.length-1],first=recs[0];
+  const diff=(k)=>last[k]!=null&&first[k]!=null?(last[k]-first[k]).toFixed(k==='whr'?2:1):null;
+  const days=recs.length>1?Math.round((new Date(last.date)-new Date(first.date))/(1000*60*60*24)):0;
+  G('ov-content').innerHTML=`
+    ${recs.length>1?`<div class="banner">
+      <div class="lbl" style="margin-bottom:8px">${days} 天成果 · ${first.date.slice(5).replace('-','/')} → ${last.date.slice(5).replace('-','/')}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">
+        ${dcard('體重',diff('weight'),'kg',true)}
+        ${dcard('體脂率',diff('fatPct'),'%',true)}
+        ${dcard('脂肪量',diff('fat'),'kg',true)}
+        ${dcard('骨骼肌',diff('muscle'),'kg',false)}
+        ${dcard('內臟脂肪',diff('visceral'),'級',true)}
+        ${dcard('BMI',diff('bmi'),'',true)}
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="lbl" style="margin-bottom:10px">最新數據 · ${last.date}</div>
+      <div class="metrics">
+        ${mc('體重',last.weight,'kg')}
+        ${mc('體脂率',last.fatPct,'%')}
+        ${mc('骨骼肌',last.muscle,'kg')}
+        ${mc('內臟脂肪',last.visceral,'級')}
+        ${mc('BMI',last.bmi,'')}
+        ${mc('BMR',last.bmr,'kcal')}
+        ${mc('腰臀比',last.whr,'')}
+        ${mc('身體評分',last.score,'分')}
+      </div>
+      ${last.dose?`<div style="font-size:12px;color:var(--sub)">施打劑量：<strong style="color:var(--a)">${last.dose}</strong>${last.side?' · '+last.side:''}</div>`:''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="card"><div class="lbl">每日熱量</div><div style="font-size:20px;font-weight:500;margin-top:4px">1100<span style="font-size:12px;color:var(--sub)">–1300 kcal</span></div></div>
+      <div class="card"><div class="lbl">蛋白質目標</div><div style="font-size:20px;font-weight:500;margin-top:4px">${last.weight?Math.round(last.weight*1.5)+'<span style="font-size:12px;color:var(--sub)">–'+Math.round(last.weight*1.8)+' g</span>':'68–82 g'}</div></div>
+      <div class="card"><div class="lbl">每日飲水</div><div style="font-size:20px;font-weight:500;margin-top:4px">2000<span style="font-size:12px;color:var(--sub)">–2500 ml</span></div></div>
+    </div>`;
+}
+function mc(l,v,u){if(v==null)return '';return `<div class="metric"><div class="lbl">${l}</div><div class="val">${v}<span class="unit">${u}</span></div></div>`;}
+function dcard(l,d,u,lib){
+  if(d==null)return '';
+  const n=parseFloat(d),good=lib?n<0:n>0,neu=n===0;
+  const cls=neu?'delta-neu':good?'delta-good':'delta-warn';
+  const arrow=neu?'→':n>0?'↑':'↓';
+  return `<div class="metric"><div class="lbl">${l}</div><div class="val ${cls}">${arrow} ${Math.abs(d)}<span class="unit"> ${u}</span></div></div>`;
+}
+
+// ── 趨勢 ──
+let charts=[];
+function renderTr(){
+  charts.forEach(c=>c.destroy());charts=[];
+  const recs=lr();
+  if(recs.length<2){G('tr-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">需要至少 2 筆紀錄（目前 ${recs.length} 筆）</div>`;return;}
+  const labels=recs.map(r=>r.date.slice(5).replace('-','/'));
+  G('tr-content').innerHTML=`
+    <div class="chart-grid">
+      <div class="card"><canvas id="ct1" height="170"></canvas></div>
+      <div class="card"><canvas id="ct2" height="170"></canvas></div>
+      <div class="card"><canvas id="ct3" height="170"></canvas></div>
+      <div class="card"><canvas id="ct4" height="170"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:12px">完整數據對比（首次 → 最新）</div>
+      <div style="overflow-x:auto">
+        <table class="t">
+          <thead><tr><th>指標</th><th>起始</th><th>最新</th><th>變化</th></tr></thead>
+          <tbody>
+            ${[['體重','weight','kg',true],['體脂率','fatPct','%',true],['脂肪量','fat','kg',true],['骨骼肌','muscle','kg',false],['內臟脂肪','visceral','級',true],['BMI','bmi','',true],['腰臀比','whr','',true],['身體評分','score','分',false]].map(([lbl,key,unit,lib])=>{
+              const f=recs[0][key],l=recs[recs.length-1][key];
+              if(f==null||l==null)return '';
+              const d=(l-f).toFixed(key==='whr'?2:1);
+              const good=lib?parseFloat(d)<0:parseFloat(d)>0;
+              const neu=parseFloat(d)===0;
+              const cls=neu?'color:var(--sub)':good?'color:#3d7a56':'color:#b5606e';
+              const arrow=neu?'→':parseFloat(d)>0?'↑':'↓';
+              return `<tr><td>${lbl}</td><td style="color:var(--sub)">${f} ${unit}</td><td style="color:var(--sub)">${l} ${unit}</td><td style="${cls}">${arrow} ${Math.abs(d)} ${unit}</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  const cfg=(title,color)=>({responsive:true,plugins:{legend:{display:false},title:{display:true,text:title,color:'#1a1814',font:{size:12,family:'DM Sans'}}},scales:{x:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}},y:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}}}});
+  const ds=(vals,color)=>({labels,datasets:[{data:vals,borderColor:color,backgroundColor:color+'18',tension:.35,fill:true,pointBackgroundColor:color,pointRadius:5,pointHoverRadius:7,borderWidth:2}]});
+  charts.push(new Chart(G('ct1'),{type:'line',options:cfg('體重 (kg)','#c8845a'),data:ds(recs.map(r=>r.weight),'#c8845a')}));
+  charts.push(new Chart(G('ct2'),{type:'line',options:cfg('體脂率 (%)','#b5606e'),data:ds(recs.map(r=>r.fatPct),'#b5606e')}));
+  charts.push(new Chart(G('ct3'),{type:'line',options:cfg('骨骼肌量 (kg)','#5c8c6e'),data:ds(recs.map(r=>r.muscle),'#5c8c6e')}));
+  charts.push(new Chart(G('ct4'),{type:'line',options:cfg('內臟脂肪 (級)','#8a7a6a'),data:ds(recs.map(r=>r.visceral),'#8a7a6a')}));
+}
+
+// ── 歷史 ──
+function renderHi(){
+  const recs=lr();
+  if(!recs.length){G('hi-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄</div>`;return;}
+  G('hi-content').innerHTML=[...recs].reverse().map(r=>`
+    <div class="card rec" id="rec-${r.id}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div>
+          <div class="lbl">${r.date}${r.note?` · <span style="color:var(--a)">${r.note}</span>`:''}</div>
+          ${r.dose?`<div style="font-size:12px;color:var(--sub);margin-top:3px">💉 ${r.dose}${r.side?' · '+r.side:''}</div>`:''}
+        </div>
+        <button class="btn-danger" onclick="delRec(${r.id})">刪除</button>
+      </div>
+      <div class="metrics">
+        ${mc('體重',r.weight,'kg')}${mc('體脂率',r.fatPct,'%')}${mc('骨骼肌',r.muscle,'kg')}${mc('內臟脂肪',r.visceral,'級')}${mc('BMI',r.bmi,'')}${mc('BMR',r.bmr,'kcal')}${mc('腰臀比',r.whr,'')}${mc('評分',r.score,'分')}
+      </div>
+      <details>
+        <summary>查看更多數值</summary>
+        <div style="padding-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">
+          ${mc('脂肪量',r.fat,'kg')}${mc('肌肉量',r.muscleTotal,'kg')}${mc('含水量',r.water,'L')}${mc('蛋白質',r.protein,'kg')}
+        </div>
+      </details>
+    </div>`).join('');
+}
+window.delRec=id=>{
+  if(!confirm('確定刪除這筆紀錄？'))return;
+  const f=lr().filter(r=>r.id!==id);sr(f);renderHi();
+};
+
+// 初始化
+renderOv();
+</script>
+</body>
+</html>
