@@ -207,7 +207,7 @@ details:not([open]) summary::before{content:'▸ '}
     <div id="hi-content"></div>
   </div>
 
-  <!-- 保健品（已修正語法錯誤） -->
+  <!-- 保健品 -->
   <div id="tab-su" style="display:none">
     <div class="card">
       <div class="lbl" style="margin-bottom:4px">完整保健品方案</div>
@@ -237,7 +237,7 @@ details:not([open]) summary::before{content:'▸ '}
     </div>
   </div>
 
-  <!-- 用藥指南（已修正語法錯誤） -->
+  <!-- 用藥指南 -->
   <div id="tab-gu" style="display:none">
     <div class="card accent-border">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
@@ -298,15 +298,14 @@ function sr(r){localStorage.setItem(SK,JSON.stringify(r))}
 
 const G=id=>document.getElementById(id);
 
-// 修正：在地化時間日期，防止因時區轉換顯示為明天
 function getLocalDateString() {
   const now = new Date();
   const offset = now.getTimezoneOffset() * 60000;
   return (new Date(now.getTime() - offset)).toISOString().slice(0, 10);
 }
-G('f-date').value = getLocalDateString();
 
-function saveRecord(){
+// 將主要互動函式明確綁定到全域物件 (window)
+window.saveRecord = function() {
   const rec={
     id:Date.now(),
     date:G('f-date').value||getLocalDateString(),
@@ -329,22 +328,25 @@ function saveRecord(){
   if(!rec.weight&&!rec.fatPct){alert('請至少填入體重或體脂率');return;}
   const recs=lr();recs.push(rec);recs.sort((a,b)=>a.date.localeCompare(b.date));sr(recs);
   G('save-msg').style.display='block';setTimeout(()=>G('save-msg').style.display='none',2500);
-  clearForm();
+  window.clearForm();
 }
 
-function clearForm(){
-  ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id=>{G(id).value='';});
-  G('f-dose').selectedIndex = 0; // 優化：確保選單跳回第一項
-  G('f-date').value=getLocalDateString();
+window.clearForm = function() {
+  ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id=>{if(G(id))G(id).value='';});
+  if(G('f-dose')) G('f-dose').selectedIndex = 0;
+  if(G('f-date')) G('f-date').value=getLocalDateString();
 }
 
-function tab(name,btn){
-  ['ov','add','tr','hi','su','gu'].forEach(n=>{G('tab-'+n).style.display=n===name?'block':'none';});
+window.tab = function(name,btn){
+  ['ov','add','tr','hi','su','gu'].forEach(n=>{
+    const el = G('tab-'+n);
+    if(el) el.style.display=n===name?'block':'none';
+  });
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
-  if(name==='ov')renderOv();
-  if(name==='tr')renderTr();
-  if(name==='hi')renderHi();
+  if(name==='ov') renderOv();
+  if(name==='tr') renderTr();
+  if(name==='hi') renderHi();
 }
 
 function renderOv(){
@@ -428,7 +430,6 @@ function renderTr(){
       </div>
     </div>`;
 
-  // 修正：符合 Chart.js 4.x 的字型與樣式寫法
   const cfg=(title,color)=>({
     responsive:true,
     plugins:{
@@ -482,8 +483,11 @@ window.delRec=id=>{
   renderHi();
 };
 
-// 初始化首頁
-renderOv();
+// 修正：使用 DOMContentLoaded 確保 HTML 元素載入完成後才進行網頁初始化與設值
+document.addEventListener('DOMContentLoaded', () => {
+  if (G('f-date')) G('f-date').value = getLocalDateString();
+  renderOv();
+});
 </script>
 </body>
 </html>
