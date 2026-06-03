@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>InBody × 猛健樂 健康追蹤</title>
-<!-- 使用 UMD 版本的 Chart.js 確保全域變數正確綁定 -->
+<!-- 調整為先載入 Chart.js 確保圖表庫就緒 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -84,30 +84,11 @@ input:focus,select:focus{outline:none;border-color:var(--a)}
 .form-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 .form-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 
-/* HISTORY ITEM */
-.rec{margin-bottom:14px}
-details summary{font-size:12px;color:var(--sub);cursor:pointer;list-style:none;padding:8px 0;border-top:1px solid var(--line);user-select:none}
-details summary::-webkit-details-marker{display:none}
-details[open] summary::before{content:'▾ '}
-details:not([open]) summary::before{content:'▸ '}
-
-/* AL */
-.al{border-left:2px solid var(--a);padding-left:14px;margin-bottom:12px}
-
-/* SPINNER */
-.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--a);border-top-color:transparent;border-radius:50%;animation:sp .9s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes sp{to{transform:rotate(360deg)}}
-
 /* BANNER */
 .banner{background:linear-gradient(135deg,#fef8f3,#f8f0e8);border:1px solid rgba(200,132,90,.25);border-radius:12px;padding:16px 20px;margin-bottom:14px}
-
-/* CHART GRID */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-
-/* MOUNJARO INFO */
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* RESPONSIVE */
 @media(max-width:580px){
   h1{font-size:28px}
   .form-row,.form-3,.form-4,.chart-grid,.info-grid{grid-template-columns:1fr}
@@ -116,8 +97,15 @@ details:not([open]) summary::before{content:'▸ '}
 </style>
 </head>
 <body>
-<div class="wrap">
 
+<!-- 頂部錯誤捕獲警報區（預設隱藏） -->
+<div id="debug-error-log" style="display:none; background:#fbeaee; color:#7a2438; padding:15px; margin:10px; border-radius:8px; border:1px solid #e8d0d3; font-family:monospace; font-size:13px; line-height:1.5;">
+  <strong style="font-size:15px;">⚠️ 網頁載入發生錯誤：</strong><br>
+  <div id="debug-error-msg" style="margin-top:8px; white-space:pre-wrap;"></div>
+  <button onclick="localStorage.clear(); location.reload();" style="margin-top:10px; background:#7a2438; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">強制清除全站緩存並重整</button>
+</div>
+
+<div class="wrap">
   <header>
     <div class="header-top">
       <div class="pills">
@@ -143,7 +131,7 @@ details:not([open]) summary::before{content:'▸ '}
 
   <!-- 總覽 -->
   <div id="tab-ov">
-    <div id="ov-content"></div>
+    <div id="ov-content">網頁載入中...</div>
   </div>
 
   <!-- 新增紀錄 -->
@@ -229,13 +217,6 @@ details:not([open]) summary::before{content:'▸ '}
         </table>
       </div>
     </div>
-    <div class="card">
-      <div class="lbl" style="margin-bottom:12px">🏋️ 運動處方</div>
-      <div class="info-grid">
-        <div class="al"><div style="font-weight:500;margin-bottom:4px;font-size:13px">阻力訓練 <span class="tag-must" style="margin-left:4px">最重要</span></div><div style="font-size:12px;color:var(--sub)">每週 2–3 次，深蹲、硬舉、臥推等複合動作，每次 40–50 分鐘。守住骨骼肌，避免繼續下降。</div></div>
-        <div class="al"><div style="font-weight:500;margin-bottom:4px;font-size:13px">有氧運動</div><div style="font-size:12px;color:var(--sub)">每週 2–3 次快走或騎車 30 分鐘，強度中低即可。猛健樂期間體力可能略差，不需勉強。</div></div>
-      </div>
-    </div>
   </div>
 
   <!-- 用藥指南 -->
@@ -249,36 +230,25 @@ details:not([open]) summary::before{content:'▸ '}
         <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">噁心管理</div><div style="font-size:12px;color:var(--sub)">油膩甜膩食物會加重噁心，少量多餐，薑茶或蘇打餅乾可緩解。</div></div>
         <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">便秘預防</div><div style="font-size:12px;color:var(--sub)">每日膳食纖維 25g+，水分 2000–2500ml，必要時用乳果糖。</div></div>
         <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">電解質補充</div><div style="font-size:12px;color:var(--sub)">食慾下降易缺鈉鉀鎂，出現頭痛疲勞時需補充。</div></div>
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">劑量調整</div><div style="font-size:12px;color:var(--sub)">每 4 週可依耐受性調升一個劑量，身體適應比速度重要。</div></div>
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">注射時機</div><div style="font-size:12px;color:var(--sub)">每週固定同一天，大腿、腹部、上臂輪換，空腹飯後均可。</div></div>
       </div>
-    </div>
-    <div class="card">
-      <div class="lbl" style="margin-bottom:12px">副作用速查</div>
-      <div style="overflow-x:auto">
-        <table class="t">
-          <thead><tr><th>副作用</th><th>原因</th><th>處理方式</th></tr></thead>
-          <tbody>
-            <tr><td><strong>噁心</strong></td><td style="font-size:11px;color:var(--sub)">胃排空延緩</td><td style="font-size:11px">少量多餐，避免油膩，薑茶有助緩解</td></tr>
-            <tr><td><strong>便秘</strong></td><td style="font-size:11px;color:var(--sub)">腸道蠕動減慢</td><td style="font-size:11px">增加纖維、水分，必要時用乳果糖</td></tr>
-            <tr><td><strong>嘔吐</strong></td><td style="font-size:11px;color:var(--sub)">胃排空過慢</td><td style="font-size:11px">進食速度放慢，每口充分咀嚼</td></tr>
-            <tr><td><strong>疲勞</strong></td><td style="font-size:11px;color:var(--sub)">熱量攝取不足</td><td style="font-size:11px">確認每日≥1000kcal，補充電解質</td></tr>
-            <tr><td><strong>頭痛</strong></td><td style="font-size:11px;color:var(--sub)">脫水 / 低血糖</td><td style="font-size:11px">增加飲水，確保規律進食</td></tr>
-            <tr><td><strong>肌肉流失</strong></td><td style="font-size:11px;color:var(--sub)">熱量赤字+蛋白質不足</td><td style="font-size:11px">優先保蛋白質，每週阻力訓練 2–3 次</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--sub);text-align:center;padding:14px;line-height:1.8">
-      本工具為衛教與飲食營養參考，不取代醫師、藥師、營養師之專業診斷。<br>
-      猛健樂(Tirzepatide)為處方藥，劑量調整與副作用請務必諮詢醫師。
     </div>
   </div>
 
-</div><!-- end wrap -->
+</div>
 
 <script>
-// 一、 基礎核心工具（最優先宣告，防閉包引用死結）
+// === 0. 終極全域錯誤監聽器（如果是代碼崩潰，這裡一定會抓到並顯示在畫面上） ===
+window.onerror = function(message, source, lineno, colno, error) {
+  const errorBox = document.getElementById('debug-error-log');
+  const errorMsg = document.getElementById('debug-error-msg');
+  if(errorBox && errorMsg) {
+    errorBox.style.display = 'block';
+    errorMsg.innerText = `${message}\n來源: ${source}\n行號: ${lineno}:${colno}\n詳細堆疊: ${error ? error.stack : '無'}`;
+  }
+  return false;
+};
+
+// === 1. 初始化資料庫基本常數 ===
 const SK = 'inbody-v4';
 const G = id => document.getElementById(id);
 
@@ -301,9 +271,7 @@ function lr(){
 }
 
 function sr(r){
-  try {
-    localStorage.setItem(SK, JSON.stringify(r));
-  } catch(e) {}
+  try { localStorage.setItem(SK, JSON.stringify(r)); } catch(e) {}
 }
 
 function getLocalDateString() {
@@ -312,7 +280,7 @@ function getLocalDateString() {
   return (new Date(now.getTime() - offset)).toISOString().slice(0, 10);
 }
 
-// 二、 綁定全域互動函式到 window，徹底根除 GitHub Pages onClick 找不到的問題
+// === 2. 顯式綁定全域互動函式到 window 物件 ===
 window.saveRecord = function() {
   const rec={
     id: Date.now(),
@@ -378,7 +346,7 @@ window.delRec = function(id) {
   renderHi();
 };
 
-// 三、 渲染介面函式
+// === 3. 畫面渲染邏輯 ===
 function mc(l,v,u){ if(v==null) return ''; return `<div class="metric"><div class="lbl">${l}</div><div class="val">${v}<span class="unit">${u}</span></div></div>`; }
 function dcard(l,d,u,lib){
   if(d==null) return '';
@@ -463,9 +431,8 @@ function renderTr(){
       </div>
     </div>`;
 
-  // 安全防護：確認 Chart.js 是否成功載入，避免 CDN 卡死導致整個程式碼當掉
   if(typeof Chart === 'undefined') {
-    console.error('Chart.js CDN 載入失敗或被阻擋。');
+    console.error('Chart.js 庫未就緒。');
     return;
   }
 
@@ -488,7 +455,7 @@ function renderTr(){
     charts.push(new Chart(G('ct3'), {type:'line', options:cfg('骨骼肌量 (kg)','#5c8c6e'), data:ds(recs.map(r=>r.muscle), '#5c8c6e')}));
     charts.push(new Chart(G('ct4'), {type:'line', options:cfg('內臟脂肪 (級)','#8a7a6a'), data:ds(recs.map(r=>r.visceral), '#8a7a6a')}));
   } catch(e) {
-    console.error('圖表渲染失敗：', e);
+    console.error('圖表初始化失敗：', e);
   }
 }
 
@@ -516,14 +483,20 @@ function renderHi(){
     </div>`).join('');
 }
 
-// 四、 生命週期初始化與防禦
+// === 4. 網頁初始化生命週期 ===
 document.addEventListener('DOMContentLoaded', () => {
   try {
     if (G('f-date')) G('f-date').value = getLocalDateString();
-    // 預設切換至首頁總覽，觸發初始化渲染
+    // 預設載入首頁
     window.tab('ov', null);
   } catch (e) {
-    console.error('初始化發生異常：', e);
+    // 萬一執行時出錯，直接打印到警報區
+    const errorBox = document.getElementById('debug-error-log');
+    const errorMsg = document.getElementById('debug-error-msg');
+    if(errorBox && errorMsg) {
+      errorBox.style.display = 'block';
+      errorMsg.innerText = `[DOMContentLoaded 階段錯誤]: ${e.message}\n${e.stack}`;
+    }
   }
 });
 </script>
