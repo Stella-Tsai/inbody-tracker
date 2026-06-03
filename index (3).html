@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>InBody × 猛健樂 健康追蹤</title>
+<!-- 使用 UMD 版本的 Chart.js 確保全域變數正確綁定 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -131,12 +132,12 @@ details:not([open]) summary::before{content:'▸ '}
 
   <div class="nav-wrap">
     <nav>
-      <button class="on" onclick="tab('ov',this)">總覽</button>
-      <button onclick="tab('add',this)">新增紀錄</button>
-      <button onclick="tab('tr',this)">趨勢圖表</button>
-      <button onclick="tab('hi',this)">歷史紀錄</button>
-      <button onclick="tab('su',this)">保健品方案</button>
-      <button onclick="tab('gu',this)">用藥指南</button>
+      <button id="btn-ov" class="on" onclick="tab('ov',this)">總覽</button>
+      <button id="btn-add" onclick="tab('add',this)">新增紀錄</button>
+      <button id="btn-tr" onclick="tab('tr',this)">趨勢圖表</button>
+      <button id="btn-hi" onclick="tab('hi',this)">歷史紀錄</button>
+      <button id="btn-su" onclick="tab('su',this)">保健品方案</button>
+      <button id="btn-gu" onclick="tab('gu',this)">用藥指南</button>
     </nav>
   </div>
 
@@ -277,9 +278,11 @@ details:not([open]) summary::before{content:'▸ '}
 </div><!-- end wrap -->
 
 <script>
-const SK='inbody-v4';
+// 一、 基礎核心工具（最優先宣告，防閉包引用死結）
+const SK = 'inbody-v4';
+const G = id => document.getElementById(id);
 
-const DEFAULT_RECORDS=[
+const DEFAULT_RECORDS = [
   {id:1741744287000,date:'2026-03-12',note:'猛健樂起始 2.5mg',dose:'2.5mg',side:'',
    weight:47.03,fatPct:27.6,fat:13.0,muscle:18.2,muscleTotal:31.7,visceral:5,bmi:19.3,bmr:1105,water:24.9,protein:6.8,whr:0.69,score:73},
   {id:1743058431000,date:'2026-03-26',note:'猛健樂第2週 2.5mg',dose:'2.5mg',side:'',
@@ -287,16 +290,21 @@ const DEFAULT_RECORDS=[
 ];
 
 function lr(){
-  try{
-    const r=JSON.parse(localStorage.getItem(SK)||'null');
-    if(r)return r;
-    localStorage.setItem(SK,JSON.stringify(DEFAULT_RECORDS));
+  try {
+    const r = JSON.parse(localStorage.getItem(SK) || 'null');
+    if(r && Array.isArray(r) && r.length > 0) return r;
+    localStorage.setItem(SK, JSON.stringify(DEFAULT_RECORDS));
     return DEFAULT_RECORDS;
-  }catch{return DEFAULT_RECORDS;}
+  } catch(e) {
+    return DEFAULT_RECORDS;
+  }
 }
-function sr(r){localStorage.setItem(SK,JSON.stringify(r))}
 
-const G=id=>document.getElementById(id);
+function sr(r){
+  try {
+    localStorage.setItem(SK, JSON.stringify(r));
+  } catch(e) {}
+}
 
 function getLocalDateString() {
   const now = new Date();
@@ -304,59 +312,91 @@ function getLocalDateString() {
   return (new Date(now.getTime() - offset)).toISOString().slice(0, 10);
 }
 
-// 將主要互動函式明確綁定到全域物件 (window)
+// 二、 綁定全域互動函式到 window，徹底根除 GitHub Pages onClick 找不到的問題
 window.saveRecord = function() {
   const rec={
-    id:Date.now(),
-    date:G('f-date').value||getLocalDateString(),
-    note:G('f-note').value||'',
-    dose:G('f-dose').value||'',
-    side:G('f-side').value||'',
-    weight:+G('f-weight').value||null,
-    fatPct:+G('f-fatpct').value||null,
-    fat:+G('f-fat').value||null,
-    muscle:+G('f-muscle').value||null,
-    muscleTotal:+G('f-muscletotal').value||null,
-    visceral:+G('f-visceral').value||null,
-    bmi:+G('f-bmi').value||null,
-    bmr:+G('f-bmr').value||null,
-    water:+G('f-water').value||null,
-    protein:+G('f-protein').value||null,
-    whr:+G('f-whr').value||null,
-    score:+G('f-score').value||null,
+    id: Date.now(),
+    date: G('f-date').value || getLocalDateString(),
+    note: G('f-note').value || '',
+    dose: G('f-dose').value || '',
+    side: G('f-side').value || '',
+    weight: +G('f-weight').value || null,
+    fatPct: +G('f-fatpct').value || null,
+    fat: +G('f-fat').value || null,
+    muscle: +G('f-muscle').value || null,
+    muscleTotal: +G('f-muscletotal').value || null,
+    visceral: +G('f-visceral').value || null,
+    bmi: +G('f-bmi').value || null,
+    bmr: +G('f-bmr').value || null,
+    water: +G('f-water').value || null,
+    protein: +G('f-protein').value || null,
+    whr: +G('f-whr').value || null,
+    score: +G('f-score').value || null,
   };
-  if(!rec.weight&&!rec.fatPct){alert('請至少填入體重或體脂率');return;}
-  const recs=lr();recs.push(rec);recs.sort((a,b)=>a.date.localeCompare(b.date));sr(recs);
-  G('save-msg').style.display='block';setTimeout(()=>G('save-msg').style.display='none',2500);
+  if(!rec.weight && !rec.fatPct){ alert('請至少填入體重或體脂率'); return; }
+  const recs = lr();
+  recs.push(rec);
+  recs.sort((a,b) => a.date.localeCompare(b.date));
+  sr(recs);
+  
+  if(G('save-msg')) {
+    G('save-msg').style.display = 'block';
+    setTimeout(() => { if(G('save-msg')) G('save-msg').style.display = 'none'; }, 2500);
+  }
   window.clearForm();
-}
+};
 
 window.clearForm = function() {
-  ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id=>{if(G(id))G(id).value='';});
-  if(G('f-dose')) G('f-dose').selectedIndex = 0;
-  if(G('f-date')) G('f-date').value=getLocalDateString();
-}
-
-window.tab = function(name,btn){
-  ['ov','add','tr','hi','su','gu'].forEach(n=>{
-    const el = G('tab-'+n);
-    if(el) el.style.display=n===name?'block':'none';
+  ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id => {
+    if(G(id)) G(id).value = '';
   });
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  if(name==='ov') renderOv();
-  if(name==='tr') renderTr();
-  if(name==='hi') renderHi();
+  if(G('f-dose')) G('f-dose').selectedIndex = 0;
+  if(G('f-date')) G('f-date').value = getLocalDateString();
+};
+
+window.tab = function(name, btn){
+  ['ov','add','tr','hi','su','gu'].forEach(n => {
+    const el = G('tab-' + n);
+    if(el) el.style.display = (n === name) ? 'block' : 'none';
+  });
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('on'));
+  if(btn) {
+    btn.classList.add('on');
+  } else {
+    const targetBtn = G('btn-' + name);
+    if(targetBtn) targetBtn.classList.add('on');
+  }
+  if(name === 'ov') renderOv();
+  if(name === 'tr') renderTr();
+  if(name === 'hi') renderHi();
+};
+
+window.delRec = function(id) {
+  if(!confirm('確定刪除這筆紀錄？')) return;
+  const f = lr().filter(r => r.id !== id);
+  sr(f);
+  renderHi();
+};
+
+// 三、 渲染介面函式
+function mc(l,v,u){ if(v==null) return ''; return `<div class="metric"><div class="lbl">${l}</div><div class="val">${v}<span class="unit">${u}</span></div></div>`; }
+function dcard(l,d,u,lib){
+  if(d==null) return '';
+  const n = parseFloat(d), good = lib ? n < 0 : n > 0, neu = n === 0;
+  const cls = neu ? 'delta-neu' : good ? 'delta-good' : 'delta-warn';
+  const arrow = neu ? '→' : n > 0 ? '↑' : '↓';
+  return `<div class="metric"><div class="lbl">${l}</div><div class="val ${cls}">${arrow} ${Math.abs(d)}<span class="unit"> ${u}</span></div></div>`;
 }
 
 function renderOv(){
-  const recs=lr();
-  if(!recs.length){G('ov-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄，點「新增紀錄」開始</div>`;return;}
-  const last=recs[recs.length-1],first=recs[0];
-  const diff=(k)=>last[k]!=null&&first[k]!=null?(last[k]-first[k]).toFixed(k==='whr'?2:1):null;
-  const days=recs.length>1?Math.round((new Date(last.date)-new Date(first.date))/(1000*60*60*24)):0;
-  G('ov-content').innerHTML=`
-    ${recs.length>1?`<div class="banner">
+  const recs = lr();
+  if(!recs.length){ G('ov-content').innerHTML = `<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄，點「新增紀錄」開始</div>`; return; }
+  const last = recs[recs.length-1], first = recs[0];
+  const diff = (k) => last[k]!=null && first[k]!=null ? (last[k]-first[k]).toFixed(k==='whr'?2:1) : null;
+  const days = recs.length > 1 ? Math.round((new Date(last.date) - new Date(first.date)) / (1000*60*60*24)) : 0;
+  
+  G('ov-content').innerHTML = `
+    ${recs.length > 1 ? `<div class="banner">
       <div class="lbl" style="margin-bottom:8px">${days} 天成果 · ${first.date.slice(5).replace('-','/')} → ${last.date.slice(5).replace('-','/')}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">
         ${dcard('體重',diff('weight'),'kg',true)}
@@ -366,7 +406,7 @@ function renderOv(){
         ${dcard('內臟脂肪',diff('visceral'),'級',true)}
         ${dcard('BMI',diff('bmi'),'',true)}
       </div>
-    </div>`:''}
+    </div>` : ''}
     <div class="card">
       <div class="lbl" style="margin-bottom:10px">最新數據 · ${last.date}</div>
       <div class="metrics">
@@ -379,7 +419,7 @@ function renderOv(){
         ${mc('腰臀比',last.whr,'')}
         ${mc('身體評分',last.score,'分')}
       </div>
-      ${last.dose?`<div style="font-size:12px;color:var(--sub)">施打劑量：<strong style="color:var(--a)">${last.dose}</strong>${last.side?' · '+last.side:''}</div>`:''}
+      ${last.dose ? `<div style="font-size:12px;color:var(--sub)">施打劑量：<strong style="color:var(--a)">${last.dose}</strong>${last.side?' · '+last.side:''}</div>` : ''}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="card"><div class="lbl">每日熱量</div><div style="font-size:20px;font-weight:500;margin-top:4px">1100<span style="font-size:12px;color:var(--sub)">–1300 kcal</span></div></div>
@@ -387,22 +427,15 @@ function renderOv(){
       <div class="card"><div class="lbl">每日飲水</div><div style="font-size:20px;font-weight:500;margin-top:4px">2000<span style="font-size:12px;color:var(--sub)">–2500 ml</span></div></div>
     </div>`;
 }
-function mc(l,v,u){if(v==null)return '';return `<div class="metric"><div class="lbl">${l}</div><div class="val">${v}<span class="unit">${u}</span></div></div>`;}
-function dcard(l,d,u,lib){
-  if(d==null)return '';
-  const n=parseFloat(d),good=lib?n<0:n>0,neu=n===0;
-  const cls=neu?'delta-neu':good?'delta-good':'delta-warn';
-  const arrow=neu?'→':n>0?'↑':'↓';
-  return `<div class="metric"><div class="lbl">${l}</div><div class="val ${cls}">${arrow} ${Math.abs(d)}<span class="unit"> ${u}</span></div></div>`;
-}
 
-let charts=[];
+let charts = [];
 function renderTr(){
-  charts.forEach(c=>c.destroy());charts=[];
-  const recs=lr();
-  if(recs.length<2){G('tr-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">需要至少 2 筆紀錄（目前 ${recs.length} 筆）</div>`;return;}
-  const labels=recs.map(r=>r.date.slice(5).replace('-','/'));
-  G('tr-content').innerHTML=`
+  charts.forEach(c => { try{ c.destroy(); }catch(e){} }); charts = [];
+  const recs = lr();
+  if(recs.length < 2){ G('tr-content').innerHTML = `<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">需要至少 2 筆紀錄（目前 ${recs.length} 筆）</div>`; return; }
+  const labels = recs.map(r => r.date.slice(5).replace('-','/'));
+  
+  G('tr-content').innerHTML = `
     <div class="chart-grid">
       <div class="card"><canvas id="ct1" height="170"></canvas></div>
       <div class="card"><canvas id="ct2" height="170"></canvas></div>
@@ -416,13 +449,13 @@ function renderTr(){
           <thead><tr><th>指標</th><th>起始</th><th>最新</th><th>變化</th></tr></thead>
           <tbody>
             ${[['體重','weight','kg',true],['體脂率','fatPct','%',true],['脂肪量','fat','kg',true],['骨骼肌','muscle','kg',false],['內臟脂肪','visceral','級',true],['BMI','bmi','',true],['腰臀比','whr','',true],['身體評分','score','分',false]].map(([lbl,key,unit,lib])=>{
-              const f=recs[0][key],l=recs[recs.length-1][key];
-              if(f==null||l==null)return '';
-              const d=(l-f).toFixed(key==='whr'?2:1);
-              const good=lib?parseFloat(d)<0:parseFloat(d)>0;
-              const neu=parseFloat(d)===0;
-              const cls=neu?'color:var(--sub)':good?'color:#3d7a56':'color:#b5606e';
-              const arrow=neu?'→':parseFloat(d)>0?'↑':'↓';
+              const f = recs[0][key], l = recs[recs.length-1][key];
+              if(f==null || l==null) return '';
+              const d = (l-f).toFixed(key==='whr'?2:1);
+              const good = lib ? parseFloat(d) < 0 : parseFloat(d) > 0;
+              const neu = parseFloat(d) === 0;
+              const cls = neu ? 'color:var(--sub)' : good ? 'color:#3d7a56' : 'color:#b5606e';
+              const arrow = neu ? '→' : parseFloat(d) > 0 ? '↑' : '↓';
               return `<tr><td>${lbl}</td><td style="color:var(--sub)">${f} ${unit}</td><td style="color:var(--sub)">${l} ${unit}</td><td style="${cls}">${arrow} ${Math.abs(d)} ${unit}</td></tr>`;
             }).join('')}
           </tbody>
@@ -430,38 +463,44 @@ function renderTr(){
       </div>
     </div>`;
 
-  const cfg=(title,color)=>({
-    responsive:true,
-    plugins:{
-      legend:{display:false},
-      title:{
-        display:true,
-        text:title,
-        color:'#1a1814',
-        font:{size:12,family:'DM Sans',weight:'bold'}
-      }
+  // 安全防護：確認 Chart.js 是否成功載入，避免 CDN 卡死導致整個程式碼當掉
+  if(typeof Chart === 'undefined') {
+    console.error('Chart.js CDN 載入失敗或被阻擋。');
+    return;
+  }
+
+  const cfg = (title,color) => ({
+    responsive: true,
+    plugins: {
+      legend: {display:false},
+      title: { display:true, text:title, color:'#1a1814', font:{size:12,family:'DM Sans',weight:'bold'} }
     },
-    scales:{
-      x:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}},
-      y:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}}
+    scales: {
+      x: { ticks:{font:{size:10}}, grid:{color:'#e8e2db'} },
+      y: { ticks:{font:{size:10}}, grid:{color:'#e8e2db'} }
     }
   });
-  const ds=(vals,color)=>({labels,datasets:[{data:vals,borderColor:color,backgroundColor:color+'18',tension:.35,fill:true,pointBackgroundColor:color,pointRadius:5,pointHoverRadius:7,borderWidth:2}]});
-  charts.push(new Chart(G('ct1'),{type:'line',options:cfg('體重 (kg)','#c8845a'),data:ds(recs.map(r=>r.weight),'#c8845a')}));
-  charts.push(new Chart(G('ct2'),{type:'line',options:cfg('體脂率 (%)','#b5606e'),data:ds(recs.map(r=>r.fatPct),'#b5606e')}));
-  charts.push(new Chart(G('ct3'),{type:'line',options:cfg('骨骼肌量 (kg)','#5c8c6e'),data:ds(recs.map(r=>r.muscle),'#5c8c6e')}));
-  charts.push(new Chart(G('ct4'),{type:'line',options:cfg('內臟脂肪 (級)','#8a7a6a'),data:ds(recs.map(r=>r.visceral),'#8a7a6a')}));
+  const ds = (vals,color) => ({labels, datasets:[{data:vals, borderColor:color, backgroundColor:color+'18', tension:.35, fill:true, pointBackgroundColor:color, pointRadius:5, pointHoverRadius:7, borderWidth:2}]});
+  
+  try {
+    charts.push(new Chart(G('ct1'), {type:'line', options:cfg('體重 (kg)','#c8845a'), data:ds(recs.map(r=>r.weight), '#c8845a')}));
+    charts.push(new Chart(G('ct2'), {type:'line', options:cfg('體脂率 (%)','#b5606e'), data:ds(recs.map(r=>r.fatPct), '#b5606e')}));
+    charts.push(new Chart(G('ct3'), {type:'line', options:cfg('骨骼肌量 (kg)','#5c8c6e'), data:ds(recs.map(r=>r.muscle), '#5c8c6e')}));
+    charts.push(new Chart(G('ct4'), {type:'line', options:cfg('內臟脂肪 (級)','#8a7a6a'), data:ds(recs.map(r=>r.visceral), '#8a7a6a')}));
+  } catch(e) {
+    console.error('圖表渲染失敗：', e);
+  }
 }
 
 function renderHi(){
-  const recs=lr();
-  if(!recs.length){G('hi-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄</div>`;return;}
-  G('hi-content').innerHTML=[...recs].reverse().map(r=>`
+  const recs = lr();
+  if(!recs.length){ G('hi-content').innerHTML = `<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄</div>`; return; }
+  G('hi-content').innerHTML = [...recs].reverse().map(r => `
     <div class="card rec" id="rec-${r.id}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
         <div>
           <div class="lbl">${r.date}${r.note?` · <span style="color:var(--a)">${r.note}</span>`:''}</div>
-          ${r.dose?`<div style="font-size:12px;color:var(--sub);margin-top:3px">💉 ${r.dose}${r.side?' · '+r.side:''}</div>`:''}
+          ${r.dose?`<div style="font-size:12px;color:var(--sub);margin-top:3px">💉 ${r.dose}${r.side?' · '+r.side:''}</div>` : ''}
         </div>
         <button class="btn-danger" onclick="delRec(${r.id})">刪除</button>
       </div>
@@ -477,16 +516,15 @@ function renderHi(){
     </div>`).join('');
 }
 
-window.delRec=id=>{
-  if(!confirm('確定刪除這筆紀錄？'))return;
-  const f=lr().filter(r=>r.id!==id);sr(f);
-  renderHi();
-};
-
-// 修正：使用 DOMContentLoaded 確保 HTML 元素載入完成後才進行網頁初始化與設值
+// 四、 生命週期初始化與防禦
 document.addEventListener('DOMContentLoaded', () => {
-  if (G('f-date')) G('f-date').value = getLocalDateString();
-  renderOv();
+  try {
+    if (G('f-date')) G('f-date').value = getLocalDateString();
+    // 預設切換至首頁總覽，觸發初始化渲染
+    window.tab('ov', null);
+  } catch (e) {
+    console.error('初始化發生異常：', e);
+  }
 });
 </script>
 </body>
