@@ -207,7 +207,7 @@ details:not([open]) summary::before{content:'▸ '}
     <div id="hi-content"></div>
   </div>
 
-  <!-- 保健品 -->
+  <!-- 保健品（已修正語法錯誤） -->
   <div id="tab-su" style="display:none">
     <div class="card">
       <div class="lbl" style="margin-bottom:4px">完整保健品方案</div>
@@ -216,21 +216,14 @@ details:not([open]) summary::before{content:'▸ '}
         <table class="t">
           <thead><tr><th>名稱</th><th>劑量</th><th>時機</th><th>目的</th><th>優先</th></tr></thead>
           <tbody>
-            ${[['乳清蛋白','25g','運動後或餐間','補足蛋白質，防肌肉流失（骨骼肌偏低最關鍵）','必備'],
-               ['維生素 D3','2000 IU','早餐後','肌肉功能、免疫、骨骼健康','必備'],
-               ['Omega-3 魚油','2g（EPA+DHA）','隨餐服用','抗發炎、護心血管、改善血脂','必備'],
-               ['鎂（甘胺酸鎂）','200mg','睡前','改善睡眠、防便秘、肌肉放鬆','必備'],
-               ['維生素 B 群','1顆複合B','早餐後','能量代謝、補充熱量不足時的流失','建議'],
-               ['膳食纖維（洋車前子）','5g加大量水','每餐前','猛健樂常見便秘、增加飽足感','建議'],
-               ['電解質粉','1包/天','日間補充','防頭痛疲勞，補充鈉鉀鎂','建議'],
-               ['膠原蛋白肽','10g','睡前','輔助皮膚緊緻（體重快速下降時）','選配'],
-            ].map(([n,d,t,p,pr])=>`<tr>
-              <td><strong>${n}</strong></td>
-              <td class="mono" style="font-size:11px">${d}</td>
-              <td style="font-size:11px">${t}</td>
-              <td style="font-size:11px;color:var(--sub)">${p}</td>
-              <td>${pr==='必備'?'<span class="tag-must">必備</span>':pr==='建議'?'<span class="tag-rec">建議</span>':'<span class="tag-opt">選配</span>'}</td>
-            </tr>`).join('')}
+            <tr><td><strong>乳清蛋白</strong></td><td class="mono" style="font-size:11px">25g</td><td style="font-size:11px">運動後或餐間</td><td style="font-size:11px;color:var(--sub)">補足蛋白質，防肌肉流失（骨骼肌偏低最關鍵）</td><td><span class="tag-must">必備</span></td></tr>
+            <tr><td><strong>維生素 D3</strong></td><td class="mono" style="font-size:11px">2000 IU</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">肌肉功能、免疫、骨骼健康</td><td><span class="tag-must">必備</span></td></tr>
+            <tr><td><strong>Omega-3 魚油</strong></td><td class="mono" style="font-size:11px">2g（EPA+DHA）</td><td style="font-size:11px">隨餐服用</td><td style="font-size:11px;color:var(--sub)">抗發炎、護心血管、改善血脂</td><td><span class="tag-must">必備</span></td></tr>
+            <tr><td><strong>鎂（甘胺酸鎂）</strong></td><td class="mono" style="font-size:11px">200mg</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">改善睡眠、防便秘、肌肉放鬆</td><td><span class="tag-must">必備</span></td></tr>
+            <tr><td><strong>維生素 B 群</strong></td><td class="mono" style="font-size:11px">1顆複合B</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">能量代謝、補充熱量不足時的流失</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>膳食纖維（洋車前子）</strong></td><td class="mono" style="font-size:11px">5g加大量水</td><td style="font-size:11px">每餐前</td><td style="font-size:11px;color:var(--sub)">猛健樂常見便秘、增加飽足感</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>電解質粉</strong></td><td class="mono" style="font-size:11px">1包/天</td><td style="font-size:11px">日間補充</td><td style="font-size:11px;color:var(--sub)">防頭痛疲勞，補充鈉鉀鎂</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>膠原蛋白肽</strong></td><td class="mono" style="font-size:11px">10g</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">輔助皮膚緊緻（體重快速下降時）</td><td><span class="tag-opt">選配</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -244,20 +237,19 @@ details:not([open]) summary::before{content:'▸ '}
     </div>
   </div>
 
-  <!-- 用藥指南 -->
+  <!-- 用藥指南（已修正語法錯誤） -->
   <div id="tab-gu" style="display:none">
     <div class="card accent-border">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
         <span class="pill accent mono">MOUNJARO</span><span class="lbl">用藥注意事項</span>
       </div>
       <div class="info-grid">
-        ${[['肌肉流失防護','每日蛋白質需達體重 ×1.5–1.8g，配合阻力訓練才能保住肌肉量。'],
-           ['噁心管理','油膩甜膩食物會加重噁心，少量多餐，薑茶或蘇打餅乾可緩解。'],
-           ['便秘預防','每日膳食纖維 25g+，水分 2000–2500ml，必要時用乳果糖。'],
-           ['電解質補充','食慾下降易缺鈉鉀鎂，出現頭痛疲勞時需補充。'],
-           ['劑量調整','每 4 週可依耐受性調升一個劑量，身體適應比速度重要。'],
-           ['注射時機','每週固定同一天，大腿、腹部、上臂輪換，空腹飯後均可。'],
-        ].map(([t,d])=>`<div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">${t}</div><div style="font-size:12px;color:var(--sub)">${d}</div></div>`).join('')}
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">肌肉流失防護</div><div style="font-size:12px;color:var(--sub)">每日蛋白質需達體重 ×1.5–1.8g，配合阻力訓練才能保住肌肉量。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">噁心管理</div><div style="font-size:12px;color:var(--sub)">油膩甜膩食物會加重噁心，少量多餐，薑茶或蘇打餅乾可緩解。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">便秘預防</div><div style="font-size:12px;color:var(--sub)">每日膳食纖維 25g+，水分 2000–2500ml，必要時用乳果糖。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">電解質補充</div><div style="font-size:12px;color:var(--sub)">食慾下降易缺鈉鉀鎂，出現頭痛疲勞時需補充。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">劑量調整</div><div style="font-size:12px;color:var(--sub)">每 4 週可依耐受性調升一個劑量，身體適應比速度重要。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">注射時機</div><div style="font-size:12px;color:var(--sub)">每週固定同一天，大腿、腹部、上臂輪換，空腹飯後均可。</div></div>
       </div>
     </div>
     <div class="card">
@@ -266,13 +258,12 @@ details:not([open]) summary::before{content:'▸ '}
         <table class="t">
           <thead><tr><th>副作用</th><th>原因</th><th>處理方式</th></tr></thead>
           <tbody>
-            ${[['噁心','胃排空延緩','少量多餐，避免油膩，薑茶有助緩解'],
-               ['便秘','腸道蠕動減慢','增加纖維、水分，必要時用乳果糖'],
-               ['嘔吐','胃排空過慢','進食速度放慢，每口充分咀嚼'],
-               ['疲勞','熱量攝取不足','確認每日≥1000kcal，補充電解質'],
-               ['頭痛','脫水 / 低血糖','增加飲水，確保規律進食'],
-               ['肌肉流失','熱量赤字+蛋白質不足','優先保蛋白質，每週阻力訓練 2–3 次'],
-            ].map(([s,r,f])=>`<tr><td><strong>${s}</strong></td><td style="font-size:11px;color:var(--sub)">${r}</td><td style="font-size:11px">${f}</td></tr>`).join('')}
+            <tr><td><strong>噁心</strong></td><td style="font-size:11px;color:var(--sub)">胃排空延緩</td><td style="font-size:11px">少量多餐，避免油膩，薑茶有助緩解</td></tr>
+            <tr><td><strong>便秘</strong></td><td style="font-size:11px;color:var(--sub)">腸道蠕動減慢</td><td style="font-size:11px">增加纖維、水分，必要時用乳果糖</td></tr>
+            <tr><td><strong>嘔吐</strong></td><td style="font-size:11px;color:var(--sub)">胃排空過慢</td><td style="font-size:11px">進食速度放慢，每口充分咀嚼</td></tr>
+            <tr><td><strong>疲勞</strong></td><td style="font-size:11px;color:var(--sub)">熱量攝取不足</td><td style="font-size:11px">確認每日≥1000kcal，補充電解質</td></tr>
+            <tr><td><strong>頭痛</strong></td><td style="font-size:11px;color:var(--sub)">脫水 / 低血糖</td><td style="font-size:11px">增加飲水，確保規律進食</td></tr>
+            <tr><td><strong>肌肉流失</strong></td><td style="font-size:11px;color:var(--sub)">熱量赤字+蛋白質不足</td><td style="font-size:11px">優先保蛋白質，每週阻力訓練 2–3 次</td></tr>
           </tbody>
         </table>
       </div>
@@ -288,7 +279,6 @@ details:not([open]) summary::before{content:'▸ '}
 <script>
 const SK='inbody-v4';
 
-// ── 預載你的兩筆真實數據 ──
 const DEFAULT_RECORDS=[
   {id:1741744287000,date:'2026-03-12',note:'猛健樂起始 2.5mg',dose:'2.5mg',side:'',
    weight:47.03,fatPct:27.6,fat:13.0,muscle:18.2,muscleTotal:31.7,visceral:5,bmi:19.3,bmr:1105,water:24.9,protein:6.8,whr:0.69,score:73},
@@ -300,7 +290,6 @@ function lr(){
   try{
     const r=JSON.parse(localStorage.getItem(SK)||'null');
     if(r)return r;
-    // 首次載入，存入預設資料
     localStorage.setItem(SK,JSON.stringify(DEFAULT_RECORDS));
     return DEFAULT_RECORDS;
   }catch{return DEFAULT_RECORDS;}
@@ -308,13 +297,19 @@ function lr(){
 function sr(r){localStorage.setItem(SK,JSON.stringify(r))}
 
 const G=id=>document.getElementById(id);
-G('f-date').value=new Date().toISOString().slice(0,10);
 
-// ── 儲存 ──
+// 修正：在地化時間日期，防止因時區轉換顯示為明天
+function getLocalDateString() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return (new Date(now.getTime() - offset)).toISOString().slice(0, 10);
+}
+G('f-date').value = getLocalDateString();
+
 function saveRecord(){
   const rec={
     id:Date.now(),
-    date:G('f-date').value||new Date().toISOString().slice(0,10),
+    date:G('f-date').value||getLocalDateString(),
     note:G('f-note').value||'',
     dose:G('f-dose').value||'',
     side:G('f-side').value||'',
@@ -336,12 +331,13 @@ function saveRecord(){
   G('save-msg').style.display='block';setTimeout(()=>G('save-msg').style.display='none',2500);
   clearForm();
 }
+
 function clearForm(){
   ['f-weight','f-fatpct','f-fat','f-muscle','f-muscletotal','f-visceral','f-bmi','f-bmr','f-water','f-protein','f-whr','f-score','f-note','f-side'].forEach(id=>{G(id).value='';});
-  G('f-dose').value='';G('f-date').value=new Date().toISOString().slice(0,10);
+  G('f-dose').selectedIndex = 0; // 優化：確保選單跳回第一項
+  G('f-date').value=getLocalDateString();
 }
 
-// ── Tab ──
 function tab(name,btn){
   ['ov','add','tr','hi','su','gu'].forEach(n=>{G('tab-'+n).style.display=n===name?'block':'none';});
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
@@ -351,7 +347,6 @@ function tab(name,btn){
   if(name==='hi')renderHi();
 }
 
-// ── 總覽 ──
 function renderOv(){
   const recs=lr();
   if(!recs.length){G('ov-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄，點「新增紀錄」開始</div>`;return;}
@@ -399,7 +394,6 @@ function dcard(l,d,u,lib){
   return `<div class="metric"><div class="lbl">${l}</div><div class="val ${cls}">${arrow} ${Math.abs(d)}<span class="unit"> ${u}</span></div></div>`;
 }
 
-// ── 趨勢 ──
 let charts=[];
 function renderTr(){
   charts.forEach(c=>c.destroy());charts=[];
@@ -433,7 +427,24 @@ function renderTr(){
         </table>
       </div>
     </div>`;
-  const cfg=(title,color)=>({responsive:true,plugins:{legend:{display:false},title:{display:true,text:title,color:'#1a1814',font:{size:12,family:'DM Sans'}}},scales:{x:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}},y:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}}}});
+
+  // 修正：符合 Chart.js 4.x 的字型與樣式寫法
+  const cfg=(title,color)=>({
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      title:{
+        display:true,
+        text:title,
+        color:'#1a1814',
+        font:{size:12,family:'DM Sans',weight:'bold'}
+      }
+    },
+    scales:{
+      x:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}},
+      y:{ticks:{font:{size:10}},grid:{color:'#e8e2db'}}
+    }
+  });
   const ds=(vals,color)=>({labels,datasets:[{data:vals,borderColor:color,backgroundColor:color+'18',tension:.35,fill:true,pointBackgroundColor:color,pointRadius:5,pointHoverRadius:7,borderWidth:2}]});
   charts.push(new Chart(G('ct1'),{type:'line',options:cfg('體重 (kg)','#c8845a'),data:ds(recs.map(r=>r.weight),'#c8845a')}));
   charts.push(new Chart(G('ct2'),{type:'line',options:cfg('體脂率 (%)','#b5606e'),data:ds(recs.map(r=>r.fatPct),'#b5606e')}));
@@ -441,7 +452,6 @@ function renderTr(){
   charts.push(new Chart(G('ct4'),{type:'line',options:cfg('內臟脂肪 (級)','#8a7a6a'),data:ds(recs.map(r=>r.visceral),'#8a7a6a')}));
 }
 
-// ── 歷史 ──
 function renderHi(){
   const recs=lr();
   if(!recs.length){G('hi-content').innerHTML=`<div class="card" style="text-align:center;padding:3rem;color:var(--sub)">還沒有紀錄</div>`;return;}
@@ -465,12 +475,14 @@ function renderHi(){
       </details>
     </div>`).join('');
 }
+
 window.delRec=id=>{
   if(!confirm('確定刪除這筆紀錄？'))return;
-  const f=lr().filter(r=>r.id!==id);sr(f);renderHi();
+  const f=lr().filter(r=>r.id!==id);sr(f);
+  renderHi();
 };
 
-// 初始化
+// 初始化首頁
 renderOv();
 </script>
 </body>
