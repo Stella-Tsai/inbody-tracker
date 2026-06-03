@@ -89,6 +89,9 @@ input:focus,select:focus{outline:none;border-color:var(--a)}
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
+/* INFO SECTION */
+.al{padding:14px;background:var(--card2);border-radius:8px}
+
 @media(max-width:580px){
   h1{font-size:28px}
   .form-row,.form-3,.form-4,.chart-grid,.info-grid{grid-template-columns:1fr}
@@ -102,7 +105,7 @@ input:focus,select:focus{outline:none;border-color:var(--a)}
 <div id="debug-error-log" style="display:none; background:#fbeaee; color:#7a2438; padding:15px; margin:10px; border-radius:8px; border:1px solid #e8d0d3; font-family:monospace; font-size:13px; line-height:1.5;">
   <strong style="font-size:15px;">⚠️ 網頁載入發生錯誤：</strong><br>
   <div id="debug-error-msg" style="margin-top:8px; white-space:pre-wrap;"></div>
-  <button onclick="localStorage.clear(); location.reload();" style="margin-top:10px; background:#7a2438; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">強制清除全站緩存並重整</button>
+  <button onclick="localStorage.clear(); location.reload();" style="margin-top:10px; background:#7a2438; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">強制清除快取並重載</button>
 </div>
 
 <div class="wrap">
@@ -205,14 +208,14 @@ input:focus,select:focus{outline:none;border-color:var(--a)}
         <table class="t">
           <thead><tr><th>名稱</th><th>劑量</th><th>時機</th><th>目的</th><th>優先</th></tr></thead>
           <tbody>
-            <tr><td><strong>乳清蛋白</strong></td><td class="mono" style="font-size:11px">25g</td><td style="font-size:11px">運動後或餐間</td><td style="font-size:11px;color:var(--sub)">補足蛋白質，防肌肉流失（骨骼肌偏低最關鍵）</td><td><span class="tag-must">必備</span></td></tr>
-            <tr><td><strong>維生素 D3</strong></td><td class="mono" style="font-size:11px">2000 IU</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">肌肉功能、免疫、骨骼健康</td><td><span class="tag-must">必備</span></td></tr>
-            <tr><td><strong>Omega-3 魚油</strong></td><td class="mono" style="font-size:11px">2g（EPA+DHA）</td><td style="font-size:11px">隨餐服用</td><td style="font-size:11px;color:var(--sub)">抗發炎、護心血管、改善血脂</td><td><span class="tag-must">必備</span></td></tr>
-            <tr><td><strong>鎂（甘胺酸鎂）</strong></td><td class="mono" style="font-size:11px">200mg</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">改善睡眠、防便秘、肌肉放鬆</td><td><span class="tag-must">必備</span></td></tr>
-            <tr><td><strong>維生素 B 群</strong></td><td class="mono" style="font-size:11px">1顆複合B</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">能量代謝、補充熱量不足時的流失</td><td><span class="tag-rec">建議</span></td></tr>
-            <tr><td><strong>膳食纖維（洋車前子）</strong></td><td class="mono" style="font-size:11px">5g加大量水</td><td style="font-size:11px">每餐前</td><td style="font-size:11px;color:var(--sub)">猛健樂常見便秘、增加飽足感</td><td><span class="tag-rec">建議</span></td></tr>
-            <tr><td><strong>電解質粉</strong></td><td class="mono" style="font-size:11px">1包/天</td><td style="font-size:11px">日間補充</td><td style="font-size:11px;color:var(--sub)">防頭痛疲勞，補充鈉鉀鎂</td><td><span class="tag-rec">建議</span></td></tr>
-            <tr><td><strong>膠原蛋白肽</strong></td><td class="mono" style="font-size:11px">10g</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">輔助皮膚緊緻（體重快速下降時）</td><td><span class="tag-opt">選配</span></td></tr>
+            <tr><td><strong>乳清蛋白</strong></td><td class="mono" style="font-size:11px">25g</td><td style="font-size:11px">運動後或餐間</td><td style="font-size:11px;color:var(--sub)">補充肌肉所需氨基酸</td><td><span class="tag-must">必須</span></td></tr>
+            <tr><td><strong>維生素 D3</strong></td><td class="mono" style="font-size:11px">2000 IU</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">肌肉功能、骨密度維持</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>Omega-3 魚油</strong></td><td class="mono" style="font-size:11px">2g（EPA+DHA）</td><td style="font-size:11px">隨餐服用</td><td style="font-size:11px;color:var(--sub)">抗發炎、代謝輔助</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>鎂（甘胺酸鎂）</strong></td><td class="mono" style="font-size:11px">200mg</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">改善便秘、肌肉鬆弛</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>維生素 B 群</strong></td><td class="mono" style="font-size:11px">1顆複合B</td><td style="font-size:11px">早餐後</td><td style="font-size:11px;color:var(--sub)">提升代謝、能量轉換</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>膳食纖維（洋車前子）</strong></td><td class="mono" style="font-size:11px">5g加大量水</td><td style="font-size:11px">每餐前</td><td style="font-size:11px;color:var(--sub)">預防便秘、控制血糖</td><td><span class="tag-must">必須</span></td></tr>
+            <tr><td><strong>電解質粉</strong></td><td class="mono" style="font-size:11px">1包/天</td><td style="font-size:11px">日間補充</td><td style="font-size:11px;color:var(--sub)">防止脫水、頭暈疲勞</td><td><span class="tag-rec">建議</span></td></tr>
+            <tr><td><strong>膠原蛋白肽</strong></td><td class="mono" style="font-size:11px">10g</td><td style="font-size:11px">睡前</td><td style="font-size:11px;color:var(--sub)">輔助皮膚緊實、膠原重建</td><td><span class="tag-opt">選擇</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -226,10 +229,10 @@ input:focus,select:focus{outline:none;border-color:var(--a)}
         <span class="pill accent mono">MOUNJARO</span><span class="lbl">用藥注意事項</span>
       </div>
       <div class="info-grid">
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">肌肉流失防護</div><div style="font-size:12px;color:var(--sub)">每日蛋白質需達體重 ×1.5–1.8g，配合阻力訓練才能保住肌肉量。</div></div>
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">噁心管理</div><div style="font-size:12px;color:var(--sub)">油膩甜膩食物會加重噁心，少量多餐，薑茶或蘇打餅乾可緩解。</div></div>
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">便秘預防</div><div style="font-size:12px;color:var(--sub)">每日膳食纖維 25g+，水分 2000–2500ml，必要時用乳果糖。</div></div>
-        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">電解質補充</div><div style="font-size:12px;color:var(--sub)">食慾下降易缺鈉鉀鎂，出現頭痛疲勞時需補充。</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">肌肉流失防護</div><div style="font-size:12px;color:var(--sub)">每日蛋白質需達體重 ×1.5–1.8g，配合阻力訓練保留瘦體重</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">噁心管理</div><div style="font-size:12px;color:var(--sub)">油膩甜膩食物會加重噁心，少量多餐，清淡清粥青菜為宜</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">便秘預防</div><div style="font-size:12px;color:var(--sub)">每日膳食纖維 25g+，水分 2000–2500ml，必要時可用鎂補充劑</div></div>
+        <div class="al"><div style="font-size:13px;font-weight:500;margin-bottom:4px">電解質補充</div><div style="font-size:12px;color:var(--sub)">食慾下降易缺鈉鉀鎂，出現頭痛疲勞時檢視電解質攝取</div></div>
       </div>
     </div>
   </div>
@@ -253,9 +256,9 @@ const SK = 'inbody-v4';
 const G = id => document.getElementById(id);
 
 const DEFAULT_RECORDS = [
-  {id:1741744287000,date:'2026-03-12',note:'猛健樂起始 2.5mg',dose:'2.5mg',side:'',
+  {id:1741744287000,date:'2025-03-12',note:'猛健樂起始 2.5mg',dose:'2.5mg',side:'',
    weight:47.03,fatPct:27.6,fat:13.0,muscle:18.2,muscleTotal:31.7,visceral:5,bmi:19.3,bmr:1105,water:24.9,protein:6.8,whr:0.69,score:73},
-  {id:1743058431000,date:'2026-03-26',note:'猛健樂第2週 2.5mg',dose:'2.5mg',side:'',
+  {id:1743058431000,date:'2025-03-26',note:'猛健樂第2週 2.5mg',dose:'2.5mg',side:'',
    weight:45.31,fatPct:25.7,fat:11.6,muscle:18.0,muscleTotal:31.5,visceral:4,bmi:18.6,bmr:1098,water:24.7,protein:6.8,whr:0.68,score:74},
 ];
 
@@ -391,7 +394,7 @@ function renderOv(){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="card"><div class="lbl">每日熱量</div><div style="font-size:20px;font-weight:500;margin-top:4px">1100<span style="font-size:12px;color:var(--sub)">–1300 kcal</span></div></div>
-      <div class="card"><div class="lbl">蛋白質目標</div><div style="font-size:20px;font-weight:500;margin-top:4px">${last.weight?Math.round(last.weight*1.5)+'<span style="font-size:12px;color:var(--sub)">–'+Math.round(last.weight*1.8)+' g</span>':'68–82 g'}</div></div>
+      <div class="card"><div class="lbl">蛋白質目標</div><div style="font-size:20px;font-weight:500;margin-top:4px">${last.weight?Math.round(last.weight*1.5)+'<span style="font-size:12px;color:var(--sub)">–'+Math.round(last.weight*1.8)+' g</span>':'-'}</div></div>
       <div class="card"><div class="lbl">每日飲水</div><div style="font-size:20px;font-weight:500;margin-top:4px">2000<span style="font-size:12px;color:var(--sub)">–2500 ml</span></div></div>
     </div>`;
 }
@@ -416,7 +419,7 @@ function renderTr(){
         <table class="t">
           <thead><tr><th>指標</th><th>起始</th><th>最新</th><th>變化</th></tr></thead>
           <tbody>
-            ${[['體重','weight','kg',true],['體脂率','fatPct','%',true],['脂肪量','fat','kg',true],['骨骼肌','muscle','kg',false],['內臟脂肪','visceral','級',true],['BMI','bmi','',true],['腰臀比','whr','',true],['身體評分','score','分',false]].map(([lbl,key,unit,lib])=>{
+            ${[['體重','weight','kg',true],['體脂率','fatPct','%',true],['脂肪量','fat','kg',true],['骨骼肌','muscle','kg',false],['肌肉量','muscleTotal','kg',false],['內臟脂肪','visceral','級',true],['BMI','bmi','',true],['BMR','bmr','kcal',false],['腰臀比','whr','',true],['身體評分','score','分',false]].map(([lbl,key,unit,lib]) => {
               const f = recs[0][key], l = recs[recs.length-1][key];
               if(f==null || l==null) return '';
               const d = (l-f).toFixed(key==='whr'?2:1);
@@ -447,7 +450,20 @@ function renderTr(){
       y: { ticks:{font:{size:10}}, grid:{color:'#e8e2db'} }
     }
   });
-  const ds = (vals,color) => ({labels, datasets:[{data:vals, borderColor:color, backgroundColor:color+'18', tension:.35, fill:true, pointBackgroundColor:color, pointRadius:5, pointHoverRadius:7, borderWidth:2}]});
+  const ds = (vals,color) => ({
+    labels, 
+    datasets:[{
+      data:vals, 
+      borderColor:color, 
+      backgroundColor:color+'18', 
+      tension:.35, 
+      fill:true, 
+      pointBackgroundColor:color, 
+      pointRadius:5, 
+      pointHoverRadius:7, 
+      borderWidth:2
+    }]
+  });
   
   try {
     charts.push(new Chart(G('ct1'), {type:'line', options:cfg('體重 (kg)','#c8845a'), data:ds(recs.map(r=>r.weight), '#c8845a')}));
@@ -472,7 +488,7 @@ function renderHi(){
         <button class="btn-danger" onclick="delRec(${r.id})">刪除</button>
       </div>
       <div class="metrics">
-        ${mc('體重',r.weight,'kg')}${mc('體脂率',r.fatPct,'%')}${mc('骨骼肌',r.muscle,'kg')}${mc('內臟脂肪',r.visceral,'級')}${mc('BMI',r.bmi,'')}${mc('BMR',r.bmr,'kcal')}${mc('腰臀比',r.whr,'')}${mc('評分',r.score,'分')}
+        ${mc('體重',r.weight,'kg')}${mc('體脂率',r.fatPct,'%')}${mc('骨骼肌',r.muscle,'kg')}${mc('內臟脂肪',r.visceral,'級')}${mc('BMI',r.bmi,'')}${mc('BMR',r.bmr,'kcal')}${mc('腰臀比',r.whr,'')}${mc('身體評分',r.score,'分')}
       </div>
       <details>
         <summary>查看更多數值</summary>
